@@ -1,0 +1,116 @@
+﻿@model WebSite.Models.EditProfileViewModel
+
+@{
+    ViewBag.Title = Model.SecondName + " " + Model.FirstName;
+}
+
+
+<script>
+    $(function () {
+        var span = document.createElement('span');
+        span.innerHTML = ['<span>@Model.SecondName @Model.FirstName</span>'].join('');
+        document.getElementById('mainpanel').insertBefore(span, null);
+    });
+    function LoadImg() {
+        var files = document.getElementById('fileupload').files; // FileList object
+
+        // Loop through the FileList and render image files as thumbnails.
+        for (var i = 0, f; f = files[i]; i++) {
+
+            // Only process image files.
+            if (!f.type.match('image.*')) {
+                continue;
+            }
+
+            var reader = new FileReader();
+
+            // Closure to capture the file information.
+            reader.onload = (function (theFile) {
+                return function (e) {
+                    //моя версия добавления
+                    $('#click-me1').attr("src", e.target.result);
+                };
+            })(f);
+
+            // Read in the image file as a data URL.
+            reader.readAsDataURL(f);
+        }
+    }
+</script>
+
+<div class="row" style="margin-top:2%">
+@using (Html.BeginForm("EditProfile", "Profile", FormMethod.Post, new { enctype = "multipart/form-data" }))
+        {
+      @Html.AntiForgeryToken()
+    <div class="col-md-5">
+        <img id="click-me1" class="img-responsive img-thumbnail" src="@Model.AvatarPath" />
+        
+        <input onchange="LoadImg()" name="fileUpload" id="fileupload"  type="file" accept="image/*">
+        <output id="list"></output>
+
+        
+    </div>
+    <div class="col-md-7">
+        <div class="row">
+            <div class="">
+                <section id="">
+                    <h3>@Model.SecondName @Model.FirstName </h3>
+                    <h5>@Model.ThirdName</h5>
+                    <hr />
+                    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                    <div class="form-group">
+                        <div class="col-md-2 control-label">
+                            Кафедра:
+                        </div>
+                        <div class="col-md-10">
+                            @Html.TextBoxFor(m => m.Chair, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(m => m.Chair, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-md-2 control-label">
+                            Группа:
+                        </div>
+                        <div class="col-md-10">
+                            @Html.TextBoxFor(m => m.Group, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(m => m.Group, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-md-2 control-label">
+                            Город:
+                        </div>
+                        <div class="col-md-10">
+                            @Html.TextBoxFor(m => m.Country, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(m => m.Country, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-md-2 control-label">
+                            Моб.тел.:
+                        </div>
+                        <div class="col-md-10">
+                            @Html.TextBoxFor(m => m.Phone, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(m => m.Phone, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-md-2 control-label">
+                            Skype:
+                        </div>
+                        <div class="col-md-10">
+                            @Html.TextBoxFor(m => m.Skype, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(m => m.Skype, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <input class="col-md-offset-7" type="submit" value="Сохранить">
+                </section>
+            </div>
+
+        </div>
+    </div>
+    <div style="width:100%;clear:both">
+
+    </div>
+}
+</div>

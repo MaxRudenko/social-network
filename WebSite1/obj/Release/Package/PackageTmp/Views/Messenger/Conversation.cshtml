@@ -1,0 +1,186 @@
+﻿@model WebSite.Models.ConversationViewModel
+@{
+    ViewBag.Title = "Conversation";
+}
+<style>
+    .myarea {
+        margin: 10px 10px 0px 10px;
+        width: 100%;
+        max-width: inherit;
+        height: 80px;
+    }
+</style>
+<script>
+
+    $(function () {
+        var span = document.createElement('span');
+        span.innerHTML = ['<span>@Model.Friend.Profile.SecondName @Model.Friend.Profile.FirstName  @Model.Friend.Profile.ThirdName <span><span class="pull-right">@WebSite.Models.UserManager.isOnline(Model.Friend.Id)</span>'].join('');
+        document.getElementById('mainpanel').insertBefore(span, null);
+    });
+</script>
+
+
+
+
+
+<div id="chat" style="max-height:320px;overflow-y:auto; overflow-x:hidden">
+
+
+    @if (Model != null || Model.Messages.Count() != 0)
+    {
+        <div id="discussion">
+            <div id="mypoint"></div>
+            @foreach (var message in Model.Messages)
+            {
+                if (message.UserId == Model.Iam.Id)
+                {
+                    <div style="width:100%;clear:both">
+                        <div class="col-md-2">
+                            <a href="/Profile?userId=@message.UserId"><img class="img-responsive img-thumbnail" style="" src="@Model.Iam.Profile.AvatarPath" /></a>
+
+                        </div>
+                        <div class="col-md-10">
+                            <a href="/Profile?userId=@message.UserId"><div>@Model.Iam.FullName</div></a><div style="clear:both">@message.Text</div>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div style="width:100%;clear:both">
+                        <div class="col-md-2">
+                            <a href="/Profile?userId=@message.UserId"> <img class="img-responsive img-thumbnail" style="" src="@Model.Friend.Profile.AvatarPath" /></a>
+                        </div>
+                        <div class="col-md-10">
+                            <a href="/Profile?userId=@message.UserId"><div>@Model.Friend.FullName</div></a>
+                            <div>@message.Text</div>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    }
+</div>
+           
+            <div align="center" class="form-horizontal" style="background-color:#DAE1E8; border-bottom:solid 1px groove;clear:both;overflow-x:hidden">
+                <div class="form-group">
+                    <div class="col-md-2" style="margin-left:2%;margin-top:1%">
+                        <img class="img-responsive img-thumbnail" style="" src="@ViewBag.AvatarPath" />
+                    </div>
+                    <div class="col-md-7">
+                        
+                        <input id="conversationId" value="@Model.Id" type="hidden" />
+                        <input id="iamId" value="@Model.Iam.Id" type="hidden" />
+                        <input id="friendId" value="@Model.Friend.Id" type="hidden" />
+                        <input id="username" value="@Model.Friend.Login" type="hidden" />
+                        <textarea class="myarea" id="message"></textarea>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-md-offset-5 col-md-10">
+                        <input id="sendToUser" style="" type="submit" value="Отправить" class="btn btn-default" />
+                        
+                    </div>
+                </div>
+            </div>
+    
+
+
+
+@section scripts {
+    <script src="~/Scripts/jquery-1.10.2.min.js"></script>
+    <!--Ссылка на библиотеку SignalR -->
+    <script src="~/Scripts/jquery.signalR-2.2.0.min.js"></script>
+    <!--Ссылка на автоматически сгенерированный скрипт хаба SignalR -->
+    <script src="~/signalr/hubs"></script>
+    <script>
+        ctrl = false; // признак нажатой клавиши "Ctrl"
+        $('#message').keydown(function(event){
+            switch (event.which) {
+                case 13: return false; // отключаем стандартное поведение
+                case 17: ctrl = true; // клавиша Ctrl нажата и удерживается
+            }
+        });
+        $('#message').keyup(function(event){
+            switch (event.which) {
+                case 13:
+                    if (!ctrl) { // если ctrl не нажат
+                        $('#sendToUser').click(); // отправляем форму
+                        return false;
+                    }
+                    breakText(); // иначе вставляем конец строки
+                    break;
+                case 17: ctrl = false; // Ctrl отпустили
+            }
+        });
+        function breakText() {
+            var text = $('#message').val();
+            
+            // вставляем перенос строки
+            $('#message').val(text+'\r\n');
+           
+            
+        }
+        
+    </script>
+    <script>
+      
+        $(function () {
+           
+ 
+            
+
+        $("#chat").animate({ "scrollTop": $('#chat')[0].scrollHeight }, "slow");
+        $('<audio id="chatAudio"><source src="/Audio/notify.ogg" type="audio/ogg"><source src="/Audio/notify.mp3" type="audio/mpeg"><source src="/Audio/notify.wav" type="audio/wav"></audio>').appendTo('body');
+        
+        var hub = $.connection.chatHub;
+        hub.client.aMethodOnTheClient = function () {
+            console.log("aMethodOnTheClient() called from the server")
+        };
+        hub.client.newMessage = function (msg) {
+            var div = document.createElement('div');
+            div.innerHTML = ['<div style="width:100%;clear:both"><div class="col-md-2"><img class="img-responsive img-thumbnail" style="" src="', msg.AvatarPath, '" /></div><div class="col-md-10"><div><a>', msg.FullName, '</a></div><div style="">', msg.Text, '</div></div></div>'].join('');
+            var wall = document.getElementById('discussion');
+            var first = wall.childNodes[0];
+
+            document.getElementById('discussion').insertBefore(div, null);
+            $("#chat").animate({ "scrollTop": $('#chat')[0].scrollHeight }, "slow");
+            $('#chatAudio')[0].play();
+          
+        };
+        $.connection.hub.error(function (err) {
+            console.error(err.message);
+        });
+
+        $.connection.hub.start().done(function () {
+            $("#sendToGroups").click(function () {
+                var groups = $("#groups").var().split(",");
+                hub.server.sendToMultipleGroups(groups);
+            })
+            $("#sendToUser").click(function () {
+                var user = $("#username").val();
+                var iamId = $("#iamId").val();
+                var friendId = $("#friendId").val();
+                var conId = $("#conversationId").val();
+                var message = $("#message").val();
+                hub.server.sendToUser(user, conId, iamId, friendId, message);
+                $("#message").val("");
+
+                var div = document.createElement('div');
+                div.innerHTML = ['<div style="width:100%;clear:both"><div class="col-md-2"><img class="img-responsive img-thumbnail" style="" src="@Model.Iam.Profile.AvatarPath" /></div><div class="col-md-10"><div><a>@Model.Iam.FullName</a></div><div style="">', message, '</div></div></div>'].join('');
+                var wall = document.getElementById('discussion');
+                var first = wall.childNodes[0];
+
+                document.getElementById('discussion').insertBefore(div, null);
+                $("#chat").animate({ "scrollTop": $('#chat')[0].scrollHeight }, "slow");
+               
+            })
+            $("#causeError").click(function () {
+                hub.server.causeError(-1).fail(function (err) {
+                    $("#errorMessage").text(err.message);
+
+                })
+            })
+        });
+    })
+    </script>}

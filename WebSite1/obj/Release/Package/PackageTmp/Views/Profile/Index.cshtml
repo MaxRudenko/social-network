@@ -1,0 +1,233 @@
+﻿@model WebSite.Models.Profile
+
+@{
+    ViewBag.Title = Model.SecondName + " " + Model.FirstName;
+    var friendsList = WebSite.Models.FriendsManager.GetFriends(Model.FriendsList);
+}
+<style type="text/css">
+    .myarea{
+        resize:none;
+        margin:5px 5px 0px 5px;
+        width:90%;
+        max-width:inherit;
+        height:40px;
+        flex-direction:column;
+    }
+    .myheaderlink
+    {
+        color:#97afca;
+    }
+    .myheaderlink:hover
+    {
+        color:#45688E;
+        text-decoration:underline;
+    }
+    .hide-layout {
+        background: #000; /* фон */
+        bottom: 0; /* координата снизу */
+        filter: progid:DXImageTransform.Microsoft.Alpha(opacity=50); /* прозрачность для IE */
+        height: 100%; /* высота на всю страницу */
+        opacity: 0.5; /* прозрачность слоя */
+        position: fixed; /* фиксируем элемент на странице*/
+        top: 0; /* координата сверху */
+        width: 100%; /* ширина на всю страницу */
+        z-index: 998; /* z-index для перекрытия остальных элементов */
+    }
+</style>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script>
+    
+    $(function () {
+        var span = document.createElement('span');
+        span.innerHTML = ['<span>@Model.SecondName @Model.FirstName</span><span class="pull-right">@WebSite.Models.UserManager.isOnline(Model.Id)</span>'].join('');
+        document.getElementById('mainpanel').insertBefore(span, null);
+    
+        $('#hide-layout').hide(); // скрыли фон и всплывающее окно
+        $('#popup1').hide(); // скрыли фон и всплывающее окно
+        $('#hide-layout').css({ opacity: .5 }); // кроссбраузерная прозрачность
+        alignCenter($('#popup1')); // центрировали окно
+        $(window).resize(function () {
+            alignCenter($('#popup1')); // центрирование при ресайзе окна
+        })
+        $('#click-me1').click(function () {
+            $('#hide-layout').removeClass('hidden')
+            $('#popup1').removeClass('hidden')
+            $('#hide-layout, #popup1').fadeIn(300); // плавно открываем
+
+        })
+        $('#btn-close, #hide-layout').click(function () {
+            $('#hide-layout, #popup1').fadeOut(300); // плавно скрываем
+
+        })
+
+
+        // функция центрирования
+        function alignCenter(elem) {
+            elem.css({
+                left: '0px', // получаем координату центра по ширине
+                top: '0px' // получаем координату центра по высоте
+            })
+        }
+    })
+</script>
+<div id="popup1" class="popup hidden" style="margin-top:1%;margin-bottom:1%; position:absolute;background-color:white;z-index:100;border:1px solid groove; border-radius:8px;padding:1%">
+    <div class="popup-content">
+
+        <div class="popup-choice">
+            <img class="img-responsive" style="" src="@Model.AvatarPath" />
+        </div>
+        <p class="popup-warning"></p>
+    </div>
+    <div class="btn-close"></div>
+</div>
+
+
+        <div class="row" style="">
+           
+            <div align="center" class="col-md-5">
+
+                <img id="click-me1" style="padding:5px;cursor:pointer" class="img-responsive" src="@Model.AvatarPath" />
+                @if(ViewBag.Other!=null&&ViewBag.Other==true)
+                {
+                     @Html.ActionLink("Написать сообщение", "SearchConversation", "Messenger", new { returnUrl = Request.Url.AbsoluteUri, userid = Model.Id }, new { @class = "btn btn-primary" })
+                    if (WebSite.Models.FriendsManager.Check(User.Identity.Name, Model.Id) == false)
+                    {
+                        if (WebSite.Models.FriendsManager.CheckOutgoingRequest(User.Identity.Name, Model.Id) == false)
+                        { 
+                        @Html.ActionLink("Добавить в друзья", "SendFriendRequest", "Profile", new { returnUrl = Request.Url.AbsoluteUri, friend = Model.Id }, new { @class = "btn btn-primary", @style = "" })
+                        
+                        }
+                       
+                    }
+                    else
+                    {
+                         @Html.ActionLink("Убрать из друзей", "DeleteFriend", "Profile", new { returnUrl = Request.Url.AbsoluteUri, friend = Model.Id }, new { @class = "btn btn-primary", @style = "" })
+                    }
+                   
+                }
+                @if(friendsList!=null && friendsList.Count!=0)
+                { 
+                <div class="row" style="text-align:left; border-right: 1px solid #DEE5EB;margin-left:5px; margin-right:5px;margin-top:10px; border-bottom: 1px solid #DEE5EB;">
+                    <div class="col-md-12" style="margin-top:0px; background: #DEE5EB;overflow: hidden;padding: 4px 8px;font-weight: bold;outline: none;color: #45688E;">
+                        Друзья
+                    </div>
+                    <div style="border-bottom: 1px solid #F1F1F1;color: #666;padding: 3px 8px;background: #F1F1F1;">
+                        @WebSite.Models.FriendsManager.Count(User.Identity.Name) Друга
+                    </div>
+                    @foreach (var friend in friendsList)
+                    {
+                        <div align="center" class="col-md-4" style="padding:3px">
+                            <a href="/Profile?userId=@friend.Id">
+                                <img class="img-responsive" style="cursor:pointer" src="@friend.Profile.AvatarPath" />
+                                @friend.Profile.FirstName @friend.Profile.SecondName
+                            </a>
+                        </div>
+                    }
+                </div>
+                }
+            </div>
+            <div class="col-md-7">
+                <div class="row">
+                    <div class="">
+                        <section id="loginForm">
+                            <h3>@Model.SecondName @Model.FirstName </h3>
+                            <h5>@Model.ThirdName</h5>
+                            <hr />
+                            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                            <table style="width:60%;">
+                                <tr>
+                                    <td style="color:grey">
+                                        <span style="color:grey">День рождения:</span>
+                                    </td>
+                                    <td>
+                                        @Html.ActionLink(Model.Date.ToString("dd MMMM yyyy"), "Search", "Profile", new { age = Model.Date.Year }, null)
+                                    </td>
+                                </tr>
+                                @if (Model.Chair != null)
+                                {
+                                    <tr>
+                                        <td style="color:grey">
+                                            Кафедра:
+                                        </td>
+                                        <td>
+                                            @Html.ActionLink(Model.Chair, "", "")
+                                        </td>
+                                    </tr>
+                                }
+                                @if (Model.Group != null)
+                                {
+                                    <tr>
+                                        <td style="color:grey">
+                                            Группа:
+                                        </td>
+                                        <td>
+                                            @Html.ActionLink(Model.Group, "", "")
+                                        </td>
+                                    </tr>
+                                }
+                                @if (Model.Phone != null)
+                                {
+                                    <tr style="color:grey">
+                                        <td>
+                                            Телефон:
+                                        </td>
+                                        <td>
+                                            @Html.ActionLink(Model.Phone, "", "")
+                                        </td>
+                                    </tr>
+                                }
+                                @if (Model.Skype != null)
+                                {
+                                    <tr>
+                                        <td style="color:grey">
+                                            Skype:
+                                        </td>
+                                        <td>
+                                            @Html.ActionLink(Model.Skype, "", "")
+                                        </td>
+                                    </tr>
+                                }
+                                @if (Model.Country != null)
+                                {
+                                    <tr>
+                                        <td style="color:grey">
+                                            Город:
+                                        </td>
+                                        <td>
+                                            @Html.ActionLink(Model.Country, "", "")
+                                        </td>
+                                    </tr>
+                                }
+                            </table>
+
+
+                        </section>
+                    </div>
+                    <div class="col-md-11" style="margin-top:5px; background: #DEE5EB;overflow: hidden;padding: 4px 8px;font-weight: bold;outline: none;color: #45688E;">
+                        Фотографии <a class="myheaderlink pull-right" style="cursor:pointer">добавить фотографии</a>
+                    </div>
+                    <div class="col-md-11" style="margin-top:10px; background: #DEE5EB;overflow: hidden;padding: 4px 8px;font-weight: bold;outline: none;color: #45688E;">
+                        0 записей 
+                    </div>
+                    <div class="col-md-11" style="border-bottom: 1px solid #F1F1F1;color: #666;padding: 3px 8px;background: #F1F1F1;">
+                        @using (Html.BeginForm("", "", FormMethod.Post))
+                        {
+                            @Html.AntiForgeryToken()
+                            <div align="center" class="form-horizontal" >
+
+                                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                                <textarea  style="width: 100%;margin-top:5px;margin-bottom:5px; padding-right: 35px; overflow: hidden; resize: none; height: 32px;"></textarea>
+                                <div class="form-group">
+                                    <div class="col-md-offset-5 col-md-10">
+                                        <input type="submit" value="Отправить" class="btn btn-default" />
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+

@@ -1,0 +1,102 @@
+﻿@model List<WebSite.Models.RequestModel>
+    @{
+        ViewBag.Title = "Друзья";
+    }
+
+    <h2>Заявки в друзья</h2>
+
+<div class="row" style="margin-top:2%;margin-bottom:2%">
+    @foreach (var item in Model)
+    {
+        
+        <div style="clear:both;width:100%;">
+            <div class="col-md-5">
+
+                <img id="click-me1" class="img-responsive img-thumbnail" src="@item.From.Profile.AvatarPath" /></div>
+            <div class="col-md-7">
+                <div class="row">
+                    <div class="">
+                        <section id="loginForm">
+                            <h3>@item.From.Profile.SecondName @item.From.Profile.FirstName </h3>
+                            <h5>@item.From.Profile.ThirdName</h5>
+                            <hr />
+                            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                            <table align="center" style="width:60%">
+                                <tr>
+                                    <td style="color:grey">
+                                        <span style="color:grey">День рождения:</span>
+                                    </td>
+                                    <td>
+                                        @Html.ActionLink(item.From.Profile.Date.ToString("dd MMMM yyyy"), "", "")
+                                    </td>
+                                </tr>
+                                @if (item.From.Profile.Chair != null)
+                                {
+                                    <tr>
+                                        <td style="color:grey">
+                                            Кафедра:
+                                        </td>
+                                        <td>
+                                            @Html.ActionLink(item.From.Profile.Chair, "", "")
+                                        </td>
+                                    </tr>
+                                }
+                                @if (item.From.Profile.Group != null)
+                                {
+                                    <tr>
+                                        <td style="color:grey">
+                                            Группа:
+                                        </td>
+                                        <td>
+                                            @Html.ActionLink(item.From.Profile.Group, "", "")
+                                        </td>
+                                    </tr>
+                                }
+                                @if (item.From.Profile.Phone != null)
+                                {
+                                    <tr style="color:grey">
+                                        <td>
+                                            Телефон:
+                                        </td>
+                                        <td>
+                                            @Html.ActionLink(item.From.Profile.Phone, "", "")
+                                        </td>
+                                    </tr>
+                                }
+                                @if (item.From.Profile.Skype != null)
+                                {
+                                    <tr>
+                                        <td style="color:grey">
+                                            Skype:
+                                        </td>
+                                        <td>
+                                            @Html.ActionLink(item.From.Profile.Skype, "", "")
+                                        </td>
+                                    </tr>
+                                }
+                                @if (item.From.Profile.Country != null)
+                                {
+                                    <tr>
+                                        <td style="color:grey">
+                                            Город:
+                                        </td>
+                                        <td>
+                                            @Html.ActionLink(item.From.Profile.Country, "", "")
+                                        </td>
+                                    </tr>
+                                }
+                            </table>
+                            @Html.ActionLink("Отклонить", "DeleteRequest", "Profile", new { friend = item.From.Id }, new { @class = "col-md-offset-9 btn btn-primary", @style = "position:absolute;top:40px;right:40px" })
+                            @Html.ActionLink("Добавить в друзья", "AddToFriends", "Profile",new{ friend=item.From.Id}, new { @class = "col-md-offset-9 btn btn-primary", @style = "position:absolute;top:0;right:40px" })
+                           
+                            <div class="btn-primary"></div>
+                        </section>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+
+    }
+</div>

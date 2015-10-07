@@ -1,0 +1,57 @@
+﻿@model IEnumerable<WebSite.Models.ConversationViewModel>
+@{
+    ViewBag.Title = "Conversations";
+}
+<style>
+.greylink 
+{
+   
+}
+.greylink:hover{
+     background-color:#E6E6FA;
+     opacity:0.7;
+
+}
+
+</style>
+<script>
+    function clickDialog(n)
+    {
+        document.location.href="/Messenger/Conversation/"+n;
+       
+    }
+    $(function () {
+        var span = document.createElement('span');
+        span.innerHTML = ['<span>Диалоги</span>'].join('');
+        document.getElementById('mainpanel').insertBefore(span, null);
+    });
+</script>
+
+
+<div class="container" style=" width:100%;margin:0;color:#2b587a">
+    @foreach (var item in Model)
+    {
+
+        
+            <div onclick="clickDialog(@item.Id)" class="greylink row" style="cursor:pointer;border-bottom:solid 1px #ddd;">
+               
+                <div class="col-md-2">
+                    <img class="img-responsive" style="" src="@item.Friend.Profile.AvatarPath" />
+                </div>
+                <div class="col-md-10" style=" white-space: nowrap; text-overflow: ellipsis;">
+                    <a href="/Messenger/DeleteConversation/@item.Id"><div class="pull-right">X</div></a>
+                    <div>
+                        @item.Friend.FullName
+                    </div>
+                    
+                    <div style="clear:both">
+                        <br />
+                        @item.Messages.FirstOrDefault().Text
+                    </div>
+
+                </div>
+            </div>
+      
+
+    }
+</div>

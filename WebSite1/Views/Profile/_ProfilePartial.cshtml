@@ -1,0 +1,95 @@
+﻿@model WebSite.Models.User
+<div style="clear:both;width:100%;">
+    <div class="col-md-5">
+
+        <a href="/Profile?userId=@Model.Id"><img id="click-me1" class="img-responsive img-thumbnail" src="@Model.Profile.AvatarPath" /></a>
+</div>
+    <div class="col-md-7">
+        <div class="row">
+            <div class="">
+                <section id="loginForm" >
+                    <h3>@Html.ActionLink(Model.Profile.SecondName + " " + Model.Profile.FirstName, "Index", "Profile", new {userId=Model.Id },null) </h3>
+                    <h5>@Model.Profile.ThirdName</h5>
+                  <hr />
+                    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                    <table align="center" style="width:60%">
+                        <tr>
+                            <td style="color:grey">
+                                <span style="color:grey">День рождения:</span>
+                            </td>
+                            <td>
+                                @Html.ActionLink(Model.Profile.Date.ToString("dd MMMM yyyy"), "", "")
+                            </td>
+                        </tr>
+                        @if (Model.Profile.Chair != null)
+                        {
+                            <tr>
+                                <td style="color:grey">
+                                    Кафедра:
+                                </td>
+                                <td>
+                                    @Html.ActionLink(Model.Profile.Chair, "", "")
+                                </td>
+                            </tr>
+                        }
+                        @if (Model.Profile.Group != null)
+                        {
+                            <tr>
+                                <td style="color:grey">
+                                    Группа:
+                                </td>
+                                <td>
+                                    @Html.ActionLink(Model.Profile.Group, "", "")
+                                </td>
+                            </tr>
+                        }
+                        @if (Model.Profile.Phone != null)
+                        {
+                            <tr style="color:grey">
+                                <td>
+                                    Телефон:
+                                </td>
+                                <td>
+                                    @Html.ActionLink(Model.Profile.Phone, "", "")
+                                </td>
+                            </tr>
+                        }
+                        @if (Model.Profile.Skype != null)
+                        {
+                            <tr>
+                                <td style="color:grey">
+                                    Skype:
+                                </td>
+                                <td>
+                                    @Html.ActionLink(Model.Profile.Skype, "", "")
+                                </td>
+                            </tr>
+                        }
+                        @if (Model.Profile.Country != null)
+                        {
+                            <tr>
+                                <td style="color:grey">
+                                    Город:
+                                </td>
+                                <td>
+                                    @Html.ActionLink(Model.Profile.Country, "", "")
+                                </td>
+                            </tr>
+                        }
+                    </table>
+                    @Html.ActionLink("Написать сообщение", "SearchConversation", "Messenger", new { returnUrl = Request.Url.AbsoluteUri, userid = Model.Id }, new { @class = "btn btn-primary", @style = "position:absolute;top:0;right:20px" })
+                    @if (WebSite.Models.FriendsManager.Check(User.Identity.Name,Model.Id)==true)
+                    {
+                        @Html.ActionLink("Убрать из друзей", "DeleteFriend", "Profile", new { returnUrl = Request.Url.AbsoluteUri, friend = Model.Id }, new { @class = "col-md-offset-8 btn btn-primary", @style = "position:absolute;top:40px;right:20px" })
+                    }
+                    else
+                    {
+                    @Html.ActionLink("Добавить в друзья", "SendFriendRequest", "Profile", new { returnUrl = Request.Url.AbsoluteUri,friend=Model.Id }, new { @class = "col-md-offset-8 btn btn-primary", @style = "position:absolute;top:40px;right:20px" })
+                    }
+                    <div class="btn-primary"></div>
+                </section>
+            </div>
+
+        </div>
+    </div>
+    </div>

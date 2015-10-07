@@ -1,0 +1,17 @@
+﻿@model IEnumerable<WebSite.Models.User>
+
+@{
+    ViewBag.Title = "Search";
+}
+
+<h4 style="margin-top:2%">Найдено @Model.Count() человек</h4>
+
+
+
+
+<div class="row" style="margin-top:2%;margin-bottom:2%">
+    @foreach (var user in Model)
+    {
+      @Html.Partial("_ProfilePartial", user)
+    }
+</div>
